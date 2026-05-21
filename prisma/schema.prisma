@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  events    Event[]
+
+  @@map("categories")
+}
+
+model Speaker {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  image     String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("speakers")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  categoryId  Int      @map("category_id")
+  location    String
+  dateEvent   DateTime @map("date_event")
+  description String   @default("")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@map("events")
+}
