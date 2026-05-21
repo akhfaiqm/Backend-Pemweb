@@ -6,7 +6,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import speakerRoutes from "./routes/speakerRoutes.js";
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(cors());
 app.use(express.json());
