@@ -67,11 +67,13 @@ app.get("/health", async (_req, res) => {
     }
     catch (err) {
         console.error("[health]", err);
+        const detail = err instanceof Error ? err.message : "Unknown database error";
         res.status(503).json({
             ok: false,
             database: "connection_failed",
-            message: "Tidak bisa konek ke database. Cek URL Supabase (pooler 6543 + direct 5432) dan jalankan migrate deploy.",
+            message: "Tidak bisa konek ke database. Copy ulang DATABASE_URL + DIRECT_URL dari .env lokal ke Railway (password & → %26).",
             dbUser,
+            detail,
         });
     }
 });
