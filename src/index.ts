@@ -2,7 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
+import { normalizeDatabaseEnv } from "./lib/normalizeEnv.js";
 import { prisma } from "./lib/db.js";
+
+normalizeDatabaseEnv();
 import eventRoutes from "./routes/eventRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import speakerRoutes from "./routes/speakerRoutes.js";
@@ -35,7 +38,7 @@ app.get("/health", async (_req, res) => {
       ok: false,
       database: "env_missing",
       message:
-        "DATABASE_URL atau DIRECT_URL belum di-set di Railway Variables",
+        "DATABASE_URL / DIRECT_URL (atau SUPABASE_DATABASE_URL) belum di-set di Railway Variables",
       hasDatabaseUrl: hasDbUrl,
       hasDirectUrl: hasDirectUrl,
     });

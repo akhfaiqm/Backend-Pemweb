@@ -1,4 +1,7 @@
 const { execSync } = require("node:child_process");
+const { normalizeDatabaseEnv } = require("./normalize-env.js");
+
+normalizeDatabaseEnv();
 
 const PLACEHOLDERS = ["[PROJECT-REF]", "[PASSWORD]", "placeholder"];
 
@@ -11,6 +14,9 @@ const directUrl = process.env.DIRECT_URL ?? "";
 
 if (!databaseUrl || !directUrl) {
   console.error("❌ DATABASE_URL atau DIRECT_URL kosong di Railway Variables.");
+  console.error(
+    "   Set DATABASE_URL + DIRECT_URL, atau cukup SUPABASE_DATABASE_URL (DIRECT_URL di-derive otomatis)."
+  );
   process.exit(1);
 }
 
