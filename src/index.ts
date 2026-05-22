@@ -14,7 +14,15 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import speakerRoutes from "./routes/speakerRoutes.js";
 
 const app = express();
-const port = Number(process.env.PORT) || 3000;
+
+// Railway: jangan set PORT manual di Variables — pakai yang di-inject platform
+const port = Number(process.env.PORT);
+const host = process.env.HOST ?? "0.0.0.0";
+
+if (!Number.isFinite(port)) {
+  console.error("PORT env tidak ada. Lokal: PORT=3000 npm run dev");
+  process.exit(1);
+}
 
 app.use(cors());
 app.use(express.json());
@@ -84,6 +92,20 @@ app.get("/health", async (_req, res) => {
   }
 });
 
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Server lagi jalan di port ${port}`);
+const server = app.listen(port, host, () => {
+  console.log(`Server ready → http://${host}:${port}`);
+});
+
+server.on("error", (err) => {
+  console.error("[server] listen error:", err);
+  process.exit(1);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("[unhandledRejection]", err);
 });

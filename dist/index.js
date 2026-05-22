@@ -13,7 +13,13 @@ const eventRoutes_js_1 = __importDefault(require("./routes/eventRoutes.js"));
 const categoryRoutes_js_1 = __importDefault(require("./routes/categoryRoutes.js"));
 const speakerRoutes_js_1 = __importDefault(require("./routes/speakerRoutes.js"));
 const app = (0, express_1.default)();
-const port = Number(process.env.PORT) || 3000;
+// Railway: jangan set PORT manual di Variables — pakai yang di-inject platform
+const port = Number(process.env.PORT);
+const host = process.env.HOST ?? "0.0.0.0";
+if (!Number.isFinite(port)) {
+    console.error("PORT env tidak ada. Lokal: PORT=3000 npm run dev");
+    process.exit(1);
+}
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use("/events", eventRoutes_js_1.default);
@@ -69,7 +75,18 @@ app.get("/health", async (_req, res) => {
         });
     }
 });
-app.listen(port, "0.0.0.0", () => {
-    console.log(`Server lagi jalan di port ${port}`);
+const server = app.listen(port, host, () => {
+    console.log(`Server ready → http://${host}:${port}`);
+});
+server.on("error", (err) => {
+    console.error("[server] listen error:", err);
+    process.exit(1);
+});
+process.on("uncaughtException", (err) => {
+    console.error("[uncaughtException]", err);
+    process.exit(1);
+});
+process.on("unhandledRejection", (err) => {
+    console.error("[unhandledRejection]", err);
 });
 //# sourceMappingURL=index.js.map
