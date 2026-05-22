@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/db.js";
+import { logDbError } from "../lib/logError.js";
 
 export const getCategories = async (_req: Request, res: Response) => {
   try {
@@ -7,7 +8,8 @@ export const getCategories = async (_req: Request, res: Response) => {
       orderBy: { createdAt: "desc" },
     });
     res.json(categories);
-  } catch {
+  } catch (err) {
+    logDbError("getCategories", err);
     res.status(500).json({ error: "Gagal mengambil data kategori" });
   }
 };

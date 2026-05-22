@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import process from "process";
 
 // Placeholder for `prisma generate` when env vars are not set (e.g. Railway build)
 const PLACEHOLDER_DB_URL =

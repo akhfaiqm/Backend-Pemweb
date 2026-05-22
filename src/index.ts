@@ -1,6 +1,8 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
+import { prisma } from "./lib/db.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import speakerRoutes from "./routes/speakerRoutes.js";
@@ -15,7 +17,36 @@ app.use("/categories", categoryRoutes);
 app.use("/speakers", speakerRoutes);
 
 app.get("/", (req, res) => {
-res.send("API INVOFEST");
+  res.send("API INVOFEST");
+});
+
+app.get("/health", async (_req, res) => {
+  const hasDbUrl = Boolean(process.env.DATABASE_URL);
+  const hasDirectUrl = Boolean(process.env.DIRECT_URL);
+
+  if (!hasDbUrl || !hasDirectUrl) {
+    return res.status(503).json({
+      ok: false,
+      database: "env_missing",
+      message:
+        "DATABASE_URL atau DIRECT_URL belum di-set di Railway Variables",
+      hasDatabaseUrl: hasDbUrl,
+      hasDirectUrl: hasDirectUrl,
+    });
+  }
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ ok: true, database: "connected" });
+  } catch (err) {
+    console.error("[health]", err);
+    res.status(503).json({
+      ok: false,
+      database: "connection_failed",
+      message:
+        "Tidak bisa konek ke database. Cek URL Supabase (pooler 6543 + direct 5432) dan jalankan migrate deploy.",
+    });
+  }
 });
 
 app.listen(port, () => {

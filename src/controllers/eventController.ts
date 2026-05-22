@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/db.js";
+import { logDbError } from "../lib/logError.js";
 
 export const getEvents = async (_req: Request, res: Response) => {
   try {
@@ -8,7 +9,8 @@ export const getEvents = async (_req: Request, res: Response) => {
       include: { category: true },
     });
     res.json(events);
-  } catch {
+  } catch (err) {
+    logDbError("getEvents", err);
     res.status(500).json({ error: "Gagal mengambil data event" });
   }
 };
