@@ -24,6 +24,12 @@ app.get("/health", async (_req, res) => {
   const hasDbUrl = Boolean(process.env.DATABASE_URL);
   const hasDirectUrl = Boolean(process.env.DIRECT_URL);
 
+  const placeholder =
+    process.env.DATABASE_URL?.includes("[PROJECT-REF]") ||
+    process.env.DATABASE_URL?.includes("[PASSWORD]") ||
+    process.env.DIRECT_URL?.includes("[PROJECT-REF]") ||
+    process.env.DIRECT_URL?.includes("[PASSWORD]");
+
   if (!hasDbUrl || !hasDirectUrl) {
     return res.status(503).json({
       ok: false,
@@ -32,6 +38,15 @@ app.get("/health", async (_req, res) => {
         "DATABASE_URL atau DIRECT_URL belum di-set di Railway Variables",
       hasDatabaseUrl: hasDbUrl,
       hasDirectUrl: hasDirectUrl,
+    });
+  }
+
+  if (placeholder) {
+    return res.status(503).json({
+      ok: false,
+      database: "placeholder",
+      message:
+        "Railway masih pakai [PROJECT-REF] / [PASSWORD]. Copy URL asli dari Supabase → Connect → Prisma.",
     });
   }
 
