@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+const { execSync } = require("node:child_process");
 
 const PLACEHOLDERS = ["[PROJECT-REF]", "[PASSWORD]", "placeholder"];
 
