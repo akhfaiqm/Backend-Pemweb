@@ -50,12 +50,15 @@ console.log("Running prisma migrate deploy...");
 try {
   execSync("npx prisma migrate deploy", { stdio: "inherit" });
 } catch {
-  console.error("\n❌ prisma migrate deploy gagal (P1000 = password/username salah).");
-  console.error("   Di Railway, set PERSIS dari .env lokal yang sudah jalan:");
-  console.error("   • DATABASE_URL  → port 6543 + ?pgbouncer=true");
-  console.error("   • DIRECT_URL    → port 5432 (tanpa pgbouncer)");
-  console.error("   Password dengan & harus %26. Tanpa tanda kutip di Railway.");
-  process.exit(1);
+  console.warn(
+    "\n⚠️  prisma migrate deploy gagal — server tetap dijalankan."
+  );
+  console.warn(
+    "   Cek /health untuk status DB. Perbaiki Railway: DATABASE_URL (6543) + DIRECT_URL (5432)."
+  );
+  console.warn(
+    "   Username harus postgres.ibtjkiiinqaeikbqwbks, password & → %26, tanpa kutip."
+  );
 }
 
 console.log("Starting server...");

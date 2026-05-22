@@ -2,7 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
-import { normalizeDatabaseEnv } from "./lib/normalizeEnv.js";
+import {
+  normalizeDatabaseEnv,
+  parsePgUser,
+} from "./lib/normalizeEnv.js";
 import { prisma } from "./lib/db.js";
 
 normalizeDatabaseEnv();
@@ -33,6 +36,8 @@ app.get("/health", async (_req, res) => {
     process.env.DIRECT_URL?.includes("[PROJECT-REF]") ||
     process.env.DIRECT_URL?.includes("[PASSWORD]");
 
+  const dbUser = parsePgUser(process.env.DATABASE_URL ?? "");
+
   if (!hasDbUrl || !hasDirectUrl) {
     return res.status(503).json({
       ok: false,
@@ -41,6 +46,17 @@ app.get("/health", async (_req, res) => {
         "DATABASE_URL / DIRECT_URL (atau SUPABASE_DATABASE_URL) belum di-set di Railway Variables",
       hasDatabaseUrl: hasDbUrl,
       hasDirectUrl: hasDirectUrl,
+      dbUser,
+    });
+  }
+
+  if (dbUser === "postgres") {
+    return res.status(503).json({
+      ok: false,
+      database: "wrong_username",
+      message:
+        "Username masih 'postgres'. Railway harus pakai postgres.ibtjkiiinqaeikbqwbks (dari Supabase → Prisma).",
+      dbUser,
     });
   }
 
@@ -55,7 +71,7 @@ app.get("/health", async (_req, res) => {
 
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ ok: true, database: "connected" });
+    res.json({ ok: true, database: "connected", dbUser });
   } catch (err) {
     console.error("[health]", err);
     res.status(503).json({
@@ -63,10 +79,11 @@ app.get("/health", async (_req, res) => {
       database: "connection_failed",
       message:
         "Tidak bisa konek ke database. Cek URL Supabase (pooler 6543 + direct 5432) dan jalankan migrate deploy.",
+      dbUser,
     });
   }
 });
 
-app.listen(port, () => {
-console.log(`Server lagi jalan di http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server lagi jalan di port ${port}`);
 });
