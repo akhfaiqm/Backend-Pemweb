@@ -16,12 +16,13 @@ function hasPlaceholder(value) {
 const databaseUrl = process.env.DATABASE_URL ?? "";
 const directUrl = process.env.DIRECT_URL ?? "";
 
-if (!databaseUrl || !directUrl) {
-  console.error("❌ DATABASE_URL atau DIRECT_URL kosong di Railway Variables.");
-  console.error(
-    "   Set DATABASE_URL + DIRECT_URL, atau cukup SUPABASE_DATABASE_URL (DIRECT_URL di-derive otomatis)."
-  );
+if (!databaseUrl) {
+  console.error("❌ DATABASE_URL kosong di Railway Variables.");
   process.exit(1);
+}
+
+if (!directUrl) {
+  console.warn("⚠️  DIRECT_URL kosong — migrate mungkin gagal, server tetap bisa jalan.");
 }
 
 if (hasPlaceholder(databaseUrl) || hasPlaceholder(directUrl)) {
@@ -37,8 +38,7 @@ if (hasPlaceholder(databaseUrl) || hasPlaceholder(directUrl)) {
 
 const validationError = validateDatabaseEnv();
 if (validationError) {
-  console.error("❌ Konfigurasi database Railway salah:\n   " + validationError);
-  process.exit(1);
+  console.warn("⚠️  Konfigurasi database:\n   " + validationError);
 }
 
 const dbUser = parsePgUser(directUrl);
